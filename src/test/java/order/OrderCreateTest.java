@@ -1,8 +1,8 @@
 package order;
 
+import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +13,7 @@ import org.junit.runners.Parameterized;
 import static org.hamcrest.CoreMatchers.notNullValue;
 @RunWith(Parameterized.class)
 public class OrderCreateTest {
+    Faker faker = new Faker();
     private final String[] color;
     private OrderCreate orderCreate;
     private OrderCreateRequest orderCreateRequest;
@@ -33,7 +34,6 @@ public class OrderCreateTest {
     }
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
         orderCreateRequest = new OrderCreateRequest();
     }
     @Test
@@ -41,14 +41,14 @@ public class OrderCreateTest {
     @Description("Send post request to /api/v1/orders")
     public void createOrderWithDifferentColors() {
         orderCreate = new OrderCreate(
-                "Kimimaro",
-                "Kagya",
-                "Land of Sound, 1",
-                "1",
-                "+79998887766",
-                5,
+                faker.name().firstName(),
+                faker.name().lastName(),
+                faker.address().fullAddress(),
+                faker.number().digit(),
+                faker.phoneNumber().phoneNumber(),
+                faker.number().randomDigitNotZero(),
                 "2022-09-22",
-                "One day of rent for each of the Five Sounds",
+                faker.backToTheFuture().quote(),
                 color);
         ValidatableResponse response = orderCreateRequest.create(orderCreate);
         response.assertThat().body("track", notNullValue());

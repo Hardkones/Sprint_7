@@ -24,9 +24,4 @@ public class CourierCredentials {
         this.login = login;
         this.password = password;
     }
-
-
-//    public static CourierCredentials from(CreateCourier createCourier) {
-//        return new CourierCredentials(createCourier.getLogin(), createCourier.getPassword());
-//    }
 }

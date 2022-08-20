@@ -3,7 +3,6 @@ package courier;
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,14 +12,13 @@ import static org.junit.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class CourierLoginTest {
+    private CourierInvalidCredentials courierInvalidCredentials;
     private CourierCredentials courierCredentials;
     private CreateCourier createCourier;
     private CourierRequests courierRequests;
     private CourierDelete courierDelete;
     @Before
     public void setUp() {
-
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
         courierRequests = new CourierRequests();
     }
     @Test
@@ -54,7 +52,6 @@ public class CourierLoginTest {
     @Description("Send post request to /api/v1/courier/login, expected status code 400 bad request")
     public void courierAuthorizationErrorWithWrongData() {
         courierCredentials = new CourierCredentials("ninja-shinobi", "");
-        createCourier();
         ValidatableResponse response = courierRequests.login(courierCredentials);
         int statusCode = response.extract().statusCode();
         assertEquals(SC_BAD_REQUEST, statusCode);
@@ -64,9 +61,17 @@ public class CourierLoginTest {
     @Description("Sent post to /api/v1/courier/login, expected status code 404 not found")
     public void courierAccountNotFoundOrNotExist() {
         courierCredentials = new CourierCredentials("ninja-shinobi", "123");
-        createCourier();
         ValidatableResponse response = courierRequests.login(courierCredentials);
         int statusCode = response.extract().statusCode();
         assertEquals(SC_NOT_FOUND, statusCode);
+    }
+    @Test
+    @DisplayName("Invalid request")
+    @Description("Service return 400 bad request, if request doesn't have password key")
+    public void courierLoginInvalidRequest() {
+        courierInvalidCredentials = new CourierInvalidCredentials("ninja-shinobi");
+        ValidatableResponse response = courierRequests.invalidLogin(courierInvalidCredentials);
+        int statusCode = response.extract().statusCode();
+        assertEquals(SC_BAD_REQUEST, statusCode);
     }
 }
